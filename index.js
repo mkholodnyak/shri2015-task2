@@ -195,11 +195,14 @@ PopulationSearcher.prototype._callbackGenerator = function (request) {
         var totalPopulation = self._getPopulationByQuery(self._query);
         if (!totalPopulation) {
             // Мощь русский языка помогает не проводить проверку на города без жителей!
+            console.log(self.messages.requestFail);
             return alert(self.messages.requestFail);
         }
 
         // Было бы хорошо вынести фразу в общий список.
-        alert('На данной площади (' + self._query + ') проживает: ' + totalPopulation + ' чел.');
+        var message = 'На данной площади (' + self._query + ') проживает: ' + totalPopulation + ' чел.';
+        alert(message);
+        console.log(message);
     };
 };
 
