@@ -204,9 +204,43 @@ PopulationSearcher.prototype._callbackGenerator = function (request) {
 };
 
 /**
+ * Возвращает количество человек, проживающих в {@code target}
+ *
+ * @param {string} target Территория, на которой пытаемся посчитать популяцию
+ * @param {string} response Где искать популяцию
+ * @param filterField По какому полю фильтровать популяцию
+ * @param getPopulationFunc Какую функцию вызвать дальше, если популяция составная
+ * Например, Континент состоит из Стран, а страны состоят из городов.
+ * @returns {number} Количество человек, проживающих на территории.
+ * @private
+ */
+PopulationSearcher.prototype._getAreaPopulation = function (target, response, filterField, getPopulationFunc) {
+    var self = this;
+    var area = this._responses[response];
+    var targetArea = area.filter(function (area) {
+        return area[filterField] === target;
+    });
+
+    if (!targetArea.length) {
+        return 0;
+    }
+
+    function bind(func, context) {
+        return function() {
+            return func.apply(context, arguments);
+        };
+    }
+
+    getPopulationFunc = bind(getPopulationFunc, self);
+    return targetArea.reduce(function (sumPopulation, area) {
+        return sumPopulation + getPopulationFunc(area.name);
+    }, 0);
+};
+
+/**
  * Возвращает количество человек, проживающих в {@code city}
  *
- * @param {string} city Город, в котором пытаемся найти количество человек
+ * @param {string} city Город, в котором пытаемся посчитать популяцию
  * @returns {number} Количество человек, проживающих в городе.
  * @private
  */
@@ -222,24 +256,12 @@ PopulationSearcher.prototype._getCityPopulation = function (city) {
 /**
  * Возращает количество человек, проживающих в {@code country}
  *
- * @param country Страна, в которой пытаемся найти количество человек
+ * @param country Страна, в которой пытаемся посчитать популяцию
  * @returns {number}  Количество человек, проживающих в стране.
  * @private
  */
 PopulationSearcher.prototype._getCountryPopulation = function (country) {
-    var self = this;
-    var cities = this._responses['/cities'];
-    var targetCities = cities.filter(function (city) {
-        return city.country === country;
-    });
-
-    if (!targetCities.length) {
-        return 0;
-    }
-
-    return targetCities.reduce(function (sumPopulation, city) {
-        return sumPopulation + self._getCityPopulation(city.name);
-    }, 0);
+    return this._getAreaPopulation(country, '/cities', 'country', this._getCityPopulation);
 };
 
 /**
@@ -250,19 +272,7 @@ PopulationSearcher.prototype._getCountryPopulation = function (country) {
  * @private
  */
 PopulationSearcher.prototype._getContinentPopulation = function (continent) {
-    var self = this;
-    var countries = this._responses['/countries'];
-    var targetCountries = countries.filter(function (country) {
-        return country.continent === continent;
-    });
-
-    if (!targetCountries.length) {
-        return 0;
-    }
-
-    return targetCountries.reduce(function (sumPopulation, country) {
-        return sumPopulation + self._getCountryPopulation(country.name);
-    }, 0);
+    return this._getAreaPopulation(continent, '/countries', 'continent', this._getCountryPopulation);
 };
 
 
