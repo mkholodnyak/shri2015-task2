@@ -1,0 +1,32 @@
+.repeat-form
+{
+    width: 400px;
+    margin: 0 auto;
+}
+
+.repeat-form__button
+{
+    font-size: 34px;
+
+    width: 100%;
+    height: 50px;
+
+    cursor: pointer;
+
+    color: #fff;
+    border: none;
+    outline: none;
+    background-color: #689f38;
+    box-shadow: 0 10px 20px #cfcfcf, 0 6px 6px #c4c4c4;
+    text-shadow: 1px 1px 5px #8bc34a;
+}
+
+.repeat-form__button:hover,
+.repeat-form__button:active
+{
+    background-color: #8bc34a;
+}
+.repeat-form__button:active
+{
+    box-shadow: 0 3px 6px #d6d6d6, 0 3px 6px #c4c4c4;
+}
